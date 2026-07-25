@@ -91,8 +91,8 @@
     </div>
 
     <script>
-    // FIXED: Localhost hata kar live Render backend URL set kiya
-    const API_URL = "https://onrender.com";
+    // FIXED: Galat URL ko hata kar aapka asli full live Render link dala hai
+    const API_URL = "https://the-mobile-hub.onrender.com";
 
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -103,7 +103,7 @@
         };
 
         try {
-            // Send values directly to live Render API route
+            // Sahi URL par directly login hit karega
             const response = await fetch(`${API_URL}/admin-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -122,7 +122,6 @@
                 window.location.href = "./admin.html"; 
             } else {
                 alert("❌ Login Error: " + result.error);
-                // FIXED: Agar galti se password galat ho toh redirect na karein, user ko wahi rehne dein taaki woh sahi password firse daal sake
             }
         } catch (error) {
             console.error("Login crashed connection error:", error);
@@ -130,6 +129,7 @@
         }
     });
 </script>
+
 
 </body>
 </html>
