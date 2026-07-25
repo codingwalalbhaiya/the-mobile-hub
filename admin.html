@@ -93,7 +93,7 @@
             <div class="total-box" id="totalEarnings">Total Sale: ₹0</div>
         </div>
     </div>
-
+<script>
    // FIXED: Localhost ko hata kar live Render URL config kiya
 const API_URL = "https://onrender.com";
 
@@ -183,6 +183,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', function() {
 loadSalesFromPython();
 // Polling interval 8 second kiya taaki free Render server par load na bade aur crash na ho
 setInterval(loadSalesFromPython, 8000);
-
+</script>
 </body>
 </html>
