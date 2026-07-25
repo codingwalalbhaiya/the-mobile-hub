@@ -230,6 +230,31 @@ def get_sales():
         )
     return jsonify(sales_list)
 
+@app.route('/api/products',methods=['GET'])
+def get_products():
+    try:
+        conn = get_db_connection()
+        products = conn.execute('SELECT * FROM products').fetchall()
+        conn.close()
+        return jsonify([dict(row) for row in products])
+        expect Exception as e:
+        return jsonify({"error":str(e)}),500
+
+@app.route('/api/products',methods=['POST'])
+def add_product():
+    try:
+        data = request.get_json()
+        conn = get_db_connection()
+        conn.execute('INSERT INTO products (name,price,brand,category) VALUES (?,?,?,?)',
+                     (data['name'],data['price'],data.get('brand'),data.get('category')))
+        conn.commit()
+        conn.close()
+        return jsonify({"message":"Product added successfully"})
+    expect Exception as e:
+        return jsonify({"error":str(e)}),500
+    
+
+
 
 if __name__ == "__main__":
     init_db()
