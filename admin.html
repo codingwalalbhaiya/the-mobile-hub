@@ -169,6 +169,17 @@
 
         loadSalesFromPython();
         setInterval(loadSalesFromPython, 5000); 
+        function loadProductsFromPython(){
+            fetch('https://the-mobile-hub.onrender.com/api/products')
+            .then(res => res.json())
+            .then(products =>{
+                console.log("Products aa gata:",products);
+            })
+            .catch(err => console.log("Product Error:",err));
+        }
+        loadProductsFromPython();
+        setInterval(loadProductsFromPython,5000);
+        }
     </script>
 </body>
 </html>
