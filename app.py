@@ -6,7 +6,9 @@ import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
+@app.route("/")
+def home():
+    return "BACKEND IS LIVE"
 DB_FILE = "shop.db"
 
 
@@ -128,7 +130,7 @@ def change_password():
 
 
 # BAAKI SARE ROUTES APKE PHLE SE FIXED HAIN
-@app.route("/get-products", methods=["GET"])
+@app.route("/api/products", methods=["GET"])
 def get_products():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -158,7 +160,7 @@ def get_products():
     return jsonify(products_list)
 
 
-@app.route("/add-product", methods=["POST"])
+@app.route("/api/product", methods=["POST"])
 def add_product():
     data = request.json or {}
     try:
@@ -184,7 +186,7 @@ def add_product():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/add-order", methods=["POST"])
+@app.route("/api/order", methods=["POST"])
 def add_order():
     data = request.json or {}
     try:
@@ -206,7 +208,7 @@ def add_order():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/get-sales", methods=["GET"])
+@app.route("/api/sales", methods=["GET"])
 def get_sales():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
