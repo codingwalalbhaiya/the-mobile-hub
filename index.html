@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE MOBILE HUB - Premium Tech Store</title>
+  
+    <style>
+        /* Global & Reset Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+/* Modern Header */
+header {
+    width: 100%;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#shopname {
+    font-weight: 800;
+    font-size: 26px;
+    color: #2563eb;
+    letter-spacing: 0.5px;
+}
+
+#shopinfo #call {
+    display: inline-block;
+    background-color: #10b981;
+    color: white;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+#shopinfo #call:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+}
+
+/* Navigation Category Tabs */
+.category-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px auto 10px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.tab-btn {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Comparison Tool Bar */
+.compare-section {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+}
+
+.compare-section h3 {
+    margin-bottom: 15px;
+    color: #0f172a;
+    font-size: 18px;
+}
+
+.compare-selectors {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.vs-text {
+    font-weight: bold; 
+    color: #64748b;
+}
+
+select {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+    background-color: #f8fafc;
+    outline: none;
+}
+
+.compare-btn {
+    background: #0f172a;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.compare-btn:hover {
+    background: #1e293b;
+}
+
+/* Comparison Result Box */
+#compareResult {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.compare-column {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.compare-column h4 { 
+    color: #2563eb; 
+    margin-bottom: 10px; 
+    font-size: 18px;
+}
+
+.compare-column p { 
+    font-size: 14px; 
+    margin: 6px 0; 
+    border-bottom: 1px solid #f1f5f9; 
+    padding-bottom: 4px;
+}
+
+/* Products Grid */
+#shopitem {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto 60px;
+}
+
+#productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Dynamic Product Card */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+.card-img-container {
+    width: 100%;
+    height: 200px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.brand-tag {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.card h3 {
+    font-size: 19px;
+    margin-bottom: 10px;
+    color: #0f172a;
+}
+
+.specs-preview {
+    font-size: 13px;
+    color: #627d98;
+    margin-bottom: 15px;
+    text-align: left;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.card .price {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 20px;
+}
+
+.buy-btn {
+    width: 100%;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.buy-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    .category-nav {
+        flex-wrap: wrap;
+    }
+    .tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header>
+        <div id="shoplogo">
+            <h2 id="shopname">THE MOBILE HUB</h2>
+        </div>
+        <div id="shopinfo">
+            <a id="call" href="tel:+91xxxxxxxxxx">📞 CALL NOW</a>
+        </div>
+    </header>
+
+    <!-- Category Filter Tabs -->
+    <div class="category-nav">
+        <button class="tab-btn active" id="btn-phone">Smartphones</button>
+        <button class="tab-btn" id="btn-laptop">Laptops</button>
+        <button class="tab-btn" id="btn-tablet">Tablets</button>
+    </div>
+
+    <!-- Smart Compare Tool 
+    <div class="compare-section">
+        <h3>⚖️ Product Compare Tool</h3>
+        <div class="compare-selectors">
+            <select id="device1">
+                <option value="">Select First Device</option>
+            </select>
+            <span class="vs-text">VS</span>
+            <select id="device2">
+                <option value="">Select Second Device</option>
+            </select>
+            <button class="compare-btn" id="btn-compare">Compare Now</button>
+        </div>
+        <div id="compareResult" style="display: none;"></div>
+    </div>
+-->
+    <!-- Dynamic Inventory Showcase -->
+    <div id="shopitem">
+        <div id="productGrid">
+            <!-- JavaScript variables yahan automatic cards generate karenge -->
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; margin-top: 50px; background: #ffffff; border-top: 1px solid #e2e8f0; color: #64748b;">
+    <p>© 2026 The Mobile Hub. All Rights Reserved.</p>
+    <!-- Yeh link customer ko normal lagega par owner isse admin panel khol lega -->
+    <a href="admin.html" style="color: #cbd5e1; text-decoration: none; font-size: 12px; margin-top: 5px; display: inline-block;">⚙️ Staff Login</a>
+</footer>
+
+    
+    <script>
+    // GLOBAL VARIABLES
+    let productDatabase = [];
+    let currentCategory = 'phone';
+    const API_URL = "http://127.0.0.1:5000";
+
+    // 1. Python Server se Data Load Karne Ka Function
+    async function loadLiveProducts() {
+        try {
+            const response = await fetch(`${API_URL}/get-products`); 
+            
+            if (!response.ok) {
+                throw new Error(`Server returned status: ${response.status}`);
+            }
+
+            productDatabase = await response.json(); 
+            renderProducts(); 
+            setupCompareDropdowns(); 
+        } catch (error) {
+            console.error("Database connection failed:", error);
+            alert("server error.");
+        }
+    }
+
+    // 2. Products Ko HTML Screen Par Cards Banakar Dikhane Ka Function
+    function renderProducts() {
+        const grid = document.getElementById('productGrid');
+        if (!grid) return;
+        grid.innerHTML = ''; 
+
+        const filtered = productDatabase.filter(p => p.category === currentCategory);
+
+        if(filtered.length === 0) {
+            grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding: 20px;">Dukan me abhi koi maal nahi hai. Admin panel se add karein!</p>`;
+            return;
+        }
+
+        filtered.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div>
+                    <div class="brand-tag">${product.brand}</div>
+                    <div class="card-img-container">
+                        <img src="${product.img}" alt="${product.name}">
+                    </div>
+                    <h3>${product.name}</h3>
+                    <div class="specs-preview">
+                        • <b>RAM/Storage:</b> ${product.specs.RAM} / ${product.specs.Storage}<br>
+                        • <b>Processor:</b> ${product.specs.Processor}<br>
+                        • <b>Battery:</b> ${product.specs.Battery}
+                    </div>
+                </div>
+                <div>
+                    <div class="price">${product.price}</div>
+                    <button class="buy-btn" onclick="makeSale('${product.id}')">🛒 Buy Now</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // 3. Category Buttons (Tabs) Switch Karne Ka Function
+    function filterCategory(cat, event) {
+        currentCategory = cat;
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if(event) event.target.classList.add('active');
+        renderProducts();
+    }
+
+    // 4. FIXED COMPARE TOOL: Ab dropdowns me products automatic aayenge
+    function setupCompareDropdowns() {
+        const d1 = document.getElementById('device1');
+        const d2 = document.getElementById('device2');
+        if(!d1 || !d2) return;
+
+        d1.innerHTML = '<option value="">Select First Device</option>';
+        d2.innerHTML = '<option value="">Select Second Device</option>';
+
+        productDatabase.forEach(p => {
+            const opt = `<option value="${p.id}">[${p.category.toUpperCase()}] ${p.brand} - ${p.name}</option>`;
+            d1.innerHTML += opt;
+            d2.innerHTML += opt;
+        });
+    }
+
+    // Dynamic Compare Handler for trigger button
+    function compareDevices() {
+        const id1 = document.getElementById('device1').value;
+        const id2 = document.getElementById('device2').value;
+        const resultBox = document.getElementById('compareResult');
+        if(!id1 || !id2) return alert("Dono device select karein!");
+
+        const dev1 = productDatabase.find(p => p.id == id1);
+        const dev2 = productDatabase.find(p => p.id == id2);
+
+        resultBox.style.display = 'grid';
+        resultBox.innerHTML = `
+            <div class="compare-column">
+                <h4>${dev1.brand} ${dev1.name}</h4>
+                <p><b>Price:</b> ${dev1.price}</p>
+                <p><b>RAM:</b> ${dev1.specs.RAM}</p>
+                <p><b>Processor:</b> ${dev1.specs.Processor}</p>
+                <p><b>Battery:</b> ${dev1.specs.Battery}</p>
+            </div>
+            <div class="compare-column">
+                <h4>${dev2.brand} ${dev2.name}</h4>
+                <p><b>Price:</b> ${dev2.price}</p>
+                <p><b>RAM:</b> ${dev2.specs.RAM}</p>
+                <p><b>Processor:</b> ${dev2.specs.Processor}</p>
+                <p><b>Battery:</b> ${dev2.specs.Battery}</p>
+            </div>`;
+    }
+
+    // 5. Order Save Aur Clean WhatsApp Redirect Function
+    async function makeSale(productId) {
+        const product = productDatabase.find(p => p.id == productId);
+        if(!product) return alert("Store item data loading error!");
+
+        const customerName = prompt("Enter your name:");
+        const customerPhone = prompt("Enter your number:");
+        if(!customerName || !customerPhone) return alert("Order cancel!");
+
+        const orderData = {
+            product_name: product.name,
+            price: product.price,
+            customer_name: customerName,
+            customer_phone: customerPhone
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/add-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+
+            if(response.ok) {
+                // Sahi WhatsApp number configuration config template
+                const ownerWhatsAppNumber = "916397693239"; 
+                
+                const textMessage = `🚨 *NEW ORDER RECEIVED* 🚨\n\n` +
+                                    `📱 *Product:* ${product.name}\n` +
+                                    `💰 *Price:* ${product.price}\n` +
+                                    `👤 *Customer:* ${customerName}\n` +
+                                    `📞 *Phone:* ${customerPhone}`;
+                                    
+                const encodedMessage = encodeURIComponent(textMessage);
+                alert(`🎉 Success! Order save ho gaya. Ab WhatsApp par redirect ho rahe hain...`);
+
+                // FIXED FORMAT STRING DIRECT URL LINK
+                window.location.href = `https://whatsapp.com{ownerWhatsAppNumber}&text=${encodedMessage}`;
+            } else {
+                alert("Server error! Order save nahi hua.");
+            }
+        } catch (error) {
+            console.error("Fetch failure:", error);
+            alert("Network error! Server response failed.");
+        }
+    }
+
+    // Initialize systems on load listeners
+    document.addEventListener("DOMContentLoaded", () => {
+        loadLiveProducts();
+        document.getElementById('btn-phone')?.addEventListener('click', (e) => filterCategory('phone', e));
+        document.getElementById('btn-laptop')?.addEventListener('click', (e) => filterCategory('laptop', e));
+        document.getElementById('btn-tablet')?.addEventListener('click', (e) => filterCategory('tablet', e));
+        document.getElementById('btn-compare')?.addEventListener('click', compareDevices);
+    });
+</script>
+</body>
+</html>
