@@ -90,9 +90,9 @@
         <a href="index.html" class="back-link">← Back to Shop</a>
     </div>
 
-    <script>
-    // FIXED: Galat URL ko hata kar aapka asli full live Render link dala hai
-    const API_URL = "https://the-mobile-hub.onrender.com";
+   <script>
+    // FIXED: Full live hosted domain configure kiya
+    const API_URL = "https://onrender.com";
 
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -103,7 +103,6 @@
         };
 
         try {
-            // Sahi URL par directly login hit karega
             const response = await fetch(`${API_URL}/admin-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -113,22 +112,19 @@
             const result = await response.json();
 
             if (response.ok) {
-                // 1. Browser memory me security token lock apply karna
                 sessionStorage.setItem("admin_token", result.token);
-                
                 alert("🔓 Access Granted! Dashboard open ho raha hai...");
-                
-                // 2. Redirect to dashboard file panel path
                 window.location.href = "./admin.html"; 
             } else {
                 alert("❌ Login Error: " + result.error);
             }
         } catch (error) {
-            console.error("Login crashed connection error:", error);
+            console.error("Login crashed:", error);
             alert("Live backend server se connection nahi ho paa raha hai. Kuch der baad koshish karein.");
         }
     });
 </script>
+
 
 
 </body>
