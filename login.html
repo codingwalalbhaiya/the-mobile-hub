@@ -91,44 +91,45 @@
     </div>
 
     <script>
-        // Python server local configuration link
-        const API_URL = "http://127.0.0.1:5000";
+    // FIXED: Localhost hata kar live Render backend URL set kiya
+    const API_URL = "https://onrender.com";
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            const loginData = {
-                user: document.getElementById('username').value,
-                pass: document.getElementById('password').value
-            };
+        const loginData = {
+            user: document.getElementById('username').value,
+            pass: document.getElementById('password').value
+        };
 
-            try {
-                // Send values directly to Python API route
-                const response = await fetch(`${API_URL}/admin-login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(loginData)
-                });
+        try {
+            // Send values directly to live Render API route
+            const response = await fetch(`${API_URL}/admin-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData)
+            });
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (response.ok) {
-                    // 1. Browser memory me security token lock apply karna
-                    sessionStorage.setItem("admin_token", result.token);
-                    
-                    alert("🔓 Access Granted! Dashboard open ho raha hai...");
-                    
-                    // 2. Redirect to dashboard file panel path
-                    window.location.href = "./admin.html"; 
-                } else {
-                    alert("❌ Login Error: " + result.error);
-                    window.location.href = "./index.html"; 
-                }
-            } catch (error) {
-                console.error("Login crashed connection error:", error);
-                alert("Python Server chalu nahi hai! Pehle terminal check karein.");
+            if (response.ok) {
+                // 1. Browser memory me security token lock apply karna
+                sessionStorage.setItem("admin_token", result.token);
+                
+                alert("🔓 Access Granted! Dashboard open ho raha hai...");
+                
+                // 2. Redirect to dashboard file panel path
+                window.location.href = "./admin.html"; 
+            } else {
+                alert("❌ Login Error: " + result.error);
+                // FIXED: Agar galti se password galat ho toh redirect na karein, user ko wahi rehne dein taaki woh sahi password firse daal sake
             }
-        });
-    </script>
+        } catch (error) {
+            console.error("Login crashed connection error:", error);
+            alert("Live backend server se connection nahi ho paa raha hai. Kuch der baad koshish karein.");
+        }
+    });
+</script>
+
 </body>
 </html>
