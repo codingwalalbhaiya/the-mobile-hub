@@ -342,18 +342,17 @@ select {
 
     
     
-   <script>
+ <script>
     // GLOBAL VARIABLES
     let productDatabase = [];
     let currentCategory = 'phone';
     
-    //Sahi Live Render URL jo aapne upar chalaya hai
+    // FIXED: Sahi aur full URL live Render backend ke liye set kiya
     const API_URL = "https://onrender.com"; 
 
     // 1. Render Server se Data Load Karne Ka Function
     async function loadLiveProducts() {
         try {
-            // Backend route se matching URL (/get-products)
             const response = await fetch(`${API_URL}/get-products`); 
             
             if (!response.ok) {
@@ -365,7 +364,7 @@ select {
             setupCompareDropdowns(); 
         } catch (error) {
             console.error("Database connection failed:", error);
-            alert("Server chalu nahi hai. Kuch der baad koshish karein.");
+            alert("Server se connection nahi ho paa raha hai. Kuch der baad koshish karein.");
         }
     }
 
@@ -407,7 +406,7 @@ select {
         });
     }
 
-    // 3. Category Buttons (Tabs) Switch Karne Ka Function
+    // 3. Category Buttons Switch Karne Ka Function
     function filterCategory(cat, event) {
         currentCategory = cat;
         const buttons = document.querySelectorAll('.tab-btn');
@@ -416,7 +415,7 @@ select {
         renderProducts();
     }
 
-    // 4. COMPARE TOOL: Dropdowns setup
+    // 4. COMPARE TOOL Dropdowns
     function setupCompareDropdowns() {
         const d1 = document.getElementById('device1');
         const d2 = document.getElementById('device2');
@@ -432,7 +431,6 @@ select {
         });
     }
 
-    // Dynamic Compare Handler for trigger button
     function compareDevices() {
         const id1 = document.getElementById('device1').value;
         const id2 = document.getElementById('device2').value;
@@ -460,7 +458,7 @@ select {
             </div>`;
     }
 
-    // 5. Order Save Aur Clean WhatsApp Redirect Function
+    // 5. WhatsApp Order Redirect (Standard API Link Format)
     async function makeSale(productId) {
         const product = productDatabase.find(p => p.id == productId);
         if(!product) return alert("Store item data loading error!");
@@ -477,7 +475,6 @@ select {
         };
 
         try {
-            // Backend route se matching URL (/add-order)
             const response = await fetch(`${API_URL}/add-order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -486,7 +483,6 @@ select {
 
             if(response.ok) {
                 const ownerWhatsAppNumber = "916397693239"; 
-                
                 const textMessage = `🚨 *NEW ORDER RECEIVED* 🚨\n\n` +
                                     `📱 *Product:* ${product.name}\n` +
                                     `💰 *Price:* ${product.price}\n` +
@@ -495,8 +491,6 @@ select {
                                     
                 const encodedMessage = encodeURIComponent(textMessage);
                 alert(`🎉 Success! Order save ho gaya. Ab WhatsApp par redirect ho rahe hain...`);
-
-                // FIXED FORMAT: WhatsApp API standard url link
                 window.location.href = `https://whatsapp.com{ownerWhatsAppNumber}&text=${encodedMessage}`;
             } else {
                 alert("Server error! Order save nahi hua.");
@@ -507,19 +501,17 @@ select {
         }
     }
 
-    // Initialize systems on load
     document.addEventListener("DOMContentLoaded", () => {
-        loadLiveProducts(); // Pehli baar load karega live server se
+        loadLiveProducts(); 
+        setInterval(loadLiveProducts, 8000); // 8 Seconds background refresh polling loop
         
-        // Polling loop: Har 5 second me data background me refresh hoga
-        setInterval(loadLiveProducts, 5000);
-
         document.getElementById('btn-phone')?.addEventListener('click', (e) => filterCategory('phone', e));
         document.getElementById('btn-laptop')?.addEventListener('click', (e) => filterCategory('laptop', e));
         document.getElementById('btn-tablet')?.addEventListener('click', (e) => filterCategory('tablet', e));
         document.getElementById('btn-compare')?.addEventListener('click', compareDevices);
     });
 </script>
+
 
 
 </body>
