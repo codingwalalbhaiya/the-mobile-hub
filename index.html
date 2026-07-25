@@ -341,15 +341,19 @@ select {
 </footer>
 
     
-    <script>
+    
+   <script>
     // GLOBAL VARIABLES
     let productDatabase = [];
     let currentCategory = 'phone';
-    const API_URL = "http://127.0.0.1:5000";
+    
+    # Sahi Live Render URL jo aapne upar chalaya hai
+    const API_URL = "https://onrender.com"; 
 
-    // 1. Python Server se Data Load Karne Ka Function
+    // 1. Render Server se Data Load Karne Ka Function
     async function loadLiveProducts() {
         try {
+            // Backend route se matching URL (/get-products)
             const response = await fetch(`${API_URL}/get-products`); 
             
             if (!response.ok) {
@@ -361,7 +365,7 @@ select {
             setupCompareDropdowns(); 
         } catch (error) {
             console.error("Database connection failed:", error);
-            alert("server error.");
+            alert("Server chalu nahi hai. Kuch der baad koshish karein.");
         }
     }
 
@@ -412,7 +416,7 @@ select {
         renderProducts();
     }
 
-    // 4. FIXED COMPARE TOOL: Ab dropdowns me products automatic aayenge
+    // 4. COMPARE TOOL: Dropdowns setup
     function setupCompareDropdowns() {
         const d1 = document.getElementById('device1');
         const d2 = document.getElementById('device2');
@@ -473,6 +477,7 @@ select {
         };
 
         try {
+            // Backend route se matching URL (/add-order)
             const response = await fetch(`${API_URL}/add-order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -480,7 +485,6 @@ select {
             });
 
             if(response.ok) {
-                // Sahi WhatsApp number configuration config template
                 const ownerWhatsAppNumber = "916397693239"; 
                 
                 const textMessage = `🚨 *NEW ORDER RECEIVED* 🚨\n\n` +
@@ -492,7 +496,7 @@ select {
                 const encodedMessage = encodeURIComponent(textMessage);
                 alert(`🎉 Success! Order save ho gaya. Ab WhatsApp par redirect ho rahe hain...`);
 
-                // FIXED FORMAT STRING DIRECT URL LINK
+                // FIXED FORMAT: WhatsApp API standard url link
                 window.location.href = `https://whatsapp.com{ownerWhatsAppNumber}&text=${encodedMessage}`;
             } else {
                 alert("Server error! Order save nahi hua.");
@@ -503,25 +507,20 @@ select {
         }
     }
 
-    // Initialize systems on load listeners
+    // Initialize systems on load
     document.addEventListener("DOMContentLoaded", () => {
-        loadLiveProducts();
+        loadLiveProducts(); // Pehli baar load karega live server se
+        
+        // Polling loop: Har 5 second me data background me refresh hoga
+        setInterval(loadLiveProducts, 5000);
+
         document.getElementById('btn-phone')?.addEventListener('click', (e) => filterCategory('phone', e));
         document.getElementById('btn-laptop')?.addEventListener('click', (e) => filterCategory('laptop', e));
         document.getElementById('btn-tablet')?.addEventListener('click', (e) => filterCategory('tablet', e));
         document.getElementById('btn-compare')?.addEventListener('click', compareDevices);
     });
-        function loadProductsFromPython(){
-            fetch('https://the-mobile-hub.onrender.com/api/products')
-            .then(res => res.json())
-            .then(products =>{
-                console.log("Products aa gata:",products);
-            })
-            .catch(err => console.log("Product Error:",err));
-        }
-        loadProductsFromPython();
-        setInterval(loadProductsFromPython,5000);
-        }
 </script>
+
+
 </body>
 </html>
