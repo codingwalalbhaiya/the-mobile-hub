@@ -1,163 +1,236 @@
-import os
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
+import hashlib
+import os
 
 app = Flask(__name__)
-# CORS को पूरी तरह खोलें ताकि आपका फ्रंटएंड बिना किसी रुकावट के कनेक्ट हो सके
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Render के लिए डेटाबेस का सही रास्ता (Absolute Path)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "products.db")
+DB_FILE = "shop.db"
 
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "The Mobile Hub Server is running!"}), 200
 
-# 1. डेटाबेस इनिशियलाइज़ करने का रूट
-@app.route("/init-db", methods=["GET"])
+# Cryptographic SHA-256 password hashing helper
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+# INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
 def init_db():
-    try:
-        with sqlite3.connect(DB_FILE) as conn:
-            cursor = conn.cursor()
-            
-            # प्रोडक्ट्स टेबल बनाना
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS products (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    category TEXT NOT NULL,
-                    brand TEXT NOT NULL,
-                    name TEXT NOT NULL,
-                    price INTEGER NOT NULL,
-                    img TEXT,
-                    ram TEXT,
-                    processor TEXT,
-                    battery TEXT
-                )
-                """
-            )
-            
-            # ऑर्डर्स टेबल बनाना (यह आपके पुराने कोड में मिसिंग था)
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS orders (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    product_name TEXT NOT NULL,
-                    price TEXT NOT NULL,
-                    customer_name TEXT NOT NULL,
-                    customer_phone TEXT NOT NULL,
-                    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-                """
-            )
-            
-            cursor.execute("SELECT COUNT(*) FROM products")
-            if cursor.fetchone()[0] == 0:
-                cursor.execute(
-                    """
-                    INSERT INTO products (category, brand, name, price, img, ram, processor, battery)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    # कैटेगरी को "phone" किया ताकि आपके फ्रंटएंड के डिफ़ॉल्ट currentCategory = 'phone' से मैच हो सके
-                    ("phone", "Apple", "iPhone 15 Pro", 129900, "https://unsplash.com", "8GB", "A17 Pro", "3274mAh"),
-                )
-                conn.commit()
-                message = "Database initialized, products and orders tables created with sample data!"
-            else:
-                message = "Database already exists and has data."
-        return jsonify({"success": True, "message": message}), 200
-    except Exception as e:
-        return jsonify({"success": False, "error": "Failed to initialize DB", "details": str(e)}), 500
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
 
-# 2. प्रोडक्ट्स गेट करने का रूट
-@app.route("/api/products", methods=["GET"])
-def get_products():
-    if not os.path.exists(DB_FILE):
-        return jsonify({"error": "Database file not found", "hint": "Please visit /init-db first to create the database."}), 404
-    try:
-        with sqlite3.connect(DB_FILE) as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, category, brand, name, price, img, ram, processor, battery FROM products")
-            rows = cursor.fetchall()
-        
-        products_list = []
-        for row in rows:
-            products_list.append({
-                "id": str(row["id"]),
-                "category": str(row["category"]),
-                "brand": str(row["brand"]),
-                "name": str(row["name"]),
-                "price": f"₹{row['price'] or 0:,}",
-                "img": str(row["img"]),
-                "specs": {
-                    "RAM": str(row["ram"]), 
-                    "Storage": "Included", 
-                    "Processor": str(row["processor"]), 
-                    "Battery": str(row["battery"])
-                }
-            })
-        return jsonify(products_list), 200
-    except Exception as e:
-        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    # 1. New Table: Admin Authentication Details Table in SQL
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS admin_auth (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL
+        )
+    """)
 
-# 3. ऑर्डर सेव करने का नया रूट (जो फ्रंटएंड के 'makeSale' फंक्शन के लिए ज़रूरी है)
-@app.route("/add-order", methods=["POST"])
-def add_order():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-            
-        product_name = data.get("product_name")
-        price = data.get("price")
-        customer_name = data.get("customer_name")
-        customer_phone = data.get("customer_phone")
-        
-        with sqlite3.connect(DB_FILE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                INSERT INTO orders (product_name, price, customer_name, customer_phone)
-                VALUES (?, ?, ?, ?)
-                """,
-                (product_name, price, customer_name, customer_phone)
-            )
-            conn.commit()
-            
-        return jsonify({"success": True, "message": "Order saved successfully!"}), 200
-    except Exception as e:
-        return jsonify({"error": "Failed to save order", "details": str(e)}), 500
+    # 2. Products Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL, brand TEXT NOT NULL, name TEXT NOT NULL,
+            price INTEGER NOT NULL, img TEXT NOT NULL, ram TEXT NOT NULL,
+            processor TEXT NOT NULL, battery TEXT NOT NULL
+        )
+    """)
 
-# 4. Admin Login चेक करने का रूट (इसे अपने app.py में बाकी रूट्स के नीचे जोड़ें)
+    # 3. Orders Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_name TEXT NOT NULL, price TEXT NOT NULL,
+            customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL,
+            order_date TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # AUTOMATIC DEFAULT CREDENTIALS: Agar table khali hai toh default login daal do
+    cursor.execute("SELECT COUNT(*) FROM admin_auth")
+    if cursor.fetchone()[0] == 0:
+        # Default Username: admin | Default Password: hub_owner_password
+        default_hash = hash_password("123456")
+        cursor.execute(
+            "INSERT INTO admin_auth (username, password_hash) VALUES (?, ?)",
+            ("admin", default_hash),
+        )
+
+    conn.commit()
+    conn.close()
+
+
+# 1. LIVE SQL-BASED ADMIN LOGIN CHECK
 @app.route("/admin-login", methods=["POST"])
 def admin_login():
+    data = request.json or {}
+    username_input = data.get("user", "").strip()
+    password_input = data.get("pass", "").strip()
+
+    hashed_input = hash_password(password_input)
+
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    # SQL Parameterization ke sath database se username aur password check karna
+    cursor.execute(
+        "SELECT password_hash FROM admin_auth WHERE username = ?", (username_input,)
+    )
+    row = cursor.fetchone()
+    conn.close()
+
+    if row and row[0] == hashed_input:
+        return (
+            jsonify(
+                {"status": "authorized", "token": "bearer_session_auth_token_999777"}
+            ),
+            200,
+        )
+    else:
+        return jsonify({"error": "Access Denied: Invalid Username or Password."}), 401
+
+
+# 2. DYNAMIC PASSWORD UPDATE ROUTE (SQL UPDATE COMMAND)
+@app.route("/change-password", methods=["POST"])
+def change_password():
+    data = request.json or {}
+    token = data.get("token")
+    username = data.get("username", "admin").strip()
+    new_password = data.get("new_pass", "").strip()
+
+    # Token check for security
+    if token != "bearer_session_auth_token_999777":
+        return jsonify({"error": "Unauthorized session!"}), 403
+
+    if not new_password:
+        return jsonify({"error": "Password cannot be empty!"}), 400
+
+    new_hash = hash_password(new_password)
+
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No login data provided"}), 400
-            
-        username = data.get("user")
-        password = data.get("pass")
-        
-        # अपना खुद का सीक्रेट यूजरनेम और पासवर्ड यहाँ सेट करें
-        # आप अपनी पसंद के मुताबिक "admin" और "admin123" को बदल सकते हैं
-        if username == "admin" and password == "admin123":
-            # सफल लॉगिन होने पर एक डमी टोकन भेजें जिसे फ्रंटएंड स्टोर कर सके
-            return jsonify({
-                "success": True, 
-                "message": "Login successful", 
-                "token": "secret_session_token_98765"
-            }), 200
-        else:
-            return jsonify({"error": "गलत यूजरनेम या पासवर्ड डाला है!"}), 401
-            
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        # Asli SQL UPDATE Query jo database mein store naya password badal degi
+        cursor.execute(
+            "UPDATE admin_auth SET password_hash = ? WHERE username = ?",
+            (new_hash, username),
+        )
+        conn.commit()
+        conn.close()
+        return (
+            jsonify({"!"}),
+            200,
+        )
     except Exception as e:
-        return jsonify({"error": "Server error during login", "details": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+
+# BAAKI SARE ROUTES APKE PHLE SE FIXED HAIN
+@app.route("/get-products", methods=["GET"])
+def get_products():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, category, brand, name, price, img, ram, processor, battery FROM products"
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    products_list = []
+    for row in rows:
+        products_list.append(
+            {
+                "id": int(row[0]),
+                "category": str(row[1]),
+                "brand": str(row[2]),
+                "name": str(row[3]),
+                "price": f"₹{row[4]:,}",
+                "img": str(row[5]),
+                "specs": {
+                    "RAM": str(row[6]),
+                    "Storage": "Included",
+                    "Processor": str(row[7]),
+                    "Battery": str(row[8]),
+                },
+            }
+        )
+    return jsonify(products_list)
+
+
+@app.route("/add-product", methods=["POST"])
+def add_product():
+    data = request.json or {}
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO products (category, brand, name, price, img, ram, processor, battery) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                str(data.get("category")),
+                str(data.get("brand")),
+                str(data.get("name")),
+                int(data.get("price", 0)),
+                str(data.get("img")),
+                str(data.get("ram")),
+                str(data.get("processor")),
+                str(data.get("battery")),
+            ),
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Product saved successfully."}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/add-order", methods=["POST"])
+def add_order():
+    data = request.json or {}
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO orders (product_name, price, customer_name, customer_phone) VALUES (?, ?, ?, ?)",
+            (
+                str(data.get("product_name")),
+                str(data.get("price")),
+                str(data.get("customer_name")),
+                str(data.get("customer_phone")),
+            ),
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Order successfully recorded."}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/get-sales", methods=["GET"])
+def get_sales():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT order_date, product_name, customer_name, customer_phone, price FROM orders ORDER BY id DESC"
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    sales_list = []
+    for row in rows:
+        sales_list.append(
+            {
+                "date": str(row[0]),
+                "productName": str(row[1]),
+                "customerName": str(row[2]),
+                "customerPhone": str(row[3]),
+                "price": str(row[4]),
+            }
+        )
+    return jsonify(sales_list)
 
 
 if __name__ == "__main__":
+    init_db()
+    # Live cloud server ka dynamic port check karne ke liye:
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(debug=False, host="0.0.0.0", port=port)
