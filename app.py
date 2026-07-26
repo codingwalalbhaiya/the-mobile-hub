@@ -159,12 +159,12 @@ def init_db():
     db.close()
     return "Database Initializee"
 
-@app.route('/api/products',methods=['GET'])
-def get_products():
-    conn = get_db_connection()
-    products = conn.execute('SELECT * FROM products').fetchall()
-    conn.close()
-    return jsonify([dict(row) for row in products])
+#@app.route('/api/products',methods=['GET'])
+#def get_products():
+   # conn = get_db_connection()
+    #products = conn.execute('SELECT * FROM products').fetchall()
+    #conn.close()
+    #return jsonify([dict(row) for row in products])
 
 
 if __name__ == "__main__":
