@@ -131,6 +131,33 @@ def add_order():
     except Exception as e:
         return jsonify({"error": "Failed to save order", "details": str(e)}), 500
 
+# 4. Admin Login चेक करने का रूट (इसे अपने app.py में बाकी रूट्स के नीचे जोड़ें)
+@app.route("/admin-login", methods=["POST"])
+def admin_login():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No login data provided"}), 400
+            
+        username = data.get("user")
+        password = data.get("pass")
+        
+        # अपना खुद का सीक्रेट यूजरनेम और पासवर्ड यहाँ सेट करें
+        # आप अपनी पसंद के मुताबिक "admin" और "admin123" को बदल सकते हैं
+        if username == "admin" and password == "admin123":
+            # सफल लॉगिन होने पर एक डमी टोकन भेजें जिसे फ्रंटएंड स्टोर कर सके
+            return jsonify({
+                "success": True, 
+                "message": "Login successful", 
+                "token": "secret_session_token_98765"
+            }), 200
+        else:
+            return jsonify({"error": "गलत यूजरनेम या पासवर्ड डाला है!"}), 401
+            
+    except Exception as e:
+        return jsonify({"error": "Server error during login", "details": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
