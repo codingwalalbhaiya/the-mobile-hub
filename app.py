@@ -146,6 +146,26 @@ def get_sales():
         return jsonify(sales_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+def get_db_connection():
+    conn = sqlite3.connect('products.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/init-db')
+def init_db():
+    db = get_db_connection()
+    db.execute('''CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY,nametTEXT,price REAL,image TEXT)''')
+    db.commit()
+    db.close()
+    return "Database Initializee"
+
+@app.route('/api/products',methods=['GET'])
+def get_products():
+    conn = get_db_connection()
+    products = conn.execute('SELECT * FROM products').fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in products])
+
 
 if __name__ == "__main__":
     init_db()
