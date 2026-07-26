@@ -70,10 +70,8 @@ def get_products():
         cursor.execute("SELECT id, category, brand, name, price, img, ram, processor, battery FROM products")
         rows = cursor.fetchall()
         conn.close()
-        
         products_list = []
         for row in rows:
-            # FIXED: Added safe explicitly extracted indices row[0], row[1] etc.
             products_list.append({
                 "id": str(row[0]),
                 "category": str(row[1]),
@@ -88,9 +86,11 @@ def get_products():
                     "Battery": str(row[8]),
                 },
             })
-        return jsonify(products_list), 200
+            
+            return jsonify(products_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+        
 
 @app.route("/add-product", methods=["POST"])
 def add_product():
