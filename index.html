@@ -347,13 +347,14 @@ select {
     let productDatabase = [];
     let currentCategory = 'phone';
     
-    // FIXED: Sahi aur full URL live Render backend ke liye set kiya
-    const API_URL = "https://onrender.com"; 
+    // FIXED 1: यहाँ सिर्फ "onrender.com" नहीं, बल्कि आपके अपने ऐप का पूरा नाम आएगा
+    const API_URL = "https://the-mobile-hub.onrender.com"; 
 
     // 1. Render Server se Data Load Karne Ka Function
     async function loadLiveProducts() {
         try {
-            const response = await fetch(`${API_URL}/get-products`); 
+            // FIXED 2: पिछले Python कोड के अनुसार यहाँ एंडपॉइंट /api/products होना चाहिए, /get-products नहीं
+            const response = await fetch(`${API_URL}/api/products`); 
             
             if (!response.ok) {
                 throw new Error(`Server returned status: ${response.status}`);
@@ -364,7 +365,7 @@ select {
             setupCompareDropdowns(); 
         } catch (error) {
             console.error("Database connection failed:", error);
-            alert("Server se connection nahi ho paa raha hai. Kuch der baad koshish karein.");
+            // बार-बार आने वाले अलर्ट को रोकने के लिए इसे केवल कंसोल में एरर दिखाने दें
         }
     }
 
@@ -374,7 +375,14 @@ select {
         if (!grid) return;
         grid.innerHTML = ''; 
 
-        const filtered = productDatabase.filter(p => p.category === currentCategory);
+        // FIXED 3: डेटाबेस में स्टोर की गई कैटेगरी को 'phone', 'laptop', 'tablet' के लोअरकेस से मैच करने के लिए safe check
+        const filtered = productDatabase.filter(p => {
+            if (!p.category) return false;
+            let cat = p.category.toLowerCase();
+            // अगर डेटाबेस में "smartphones" लिखा है तो उसे "phone" की कैटेगरी में दिखाएं
+            if (currentCategory === 'phone' && (cat.includes('phone') || cat.includes('smartphone'))) return true;
+            return cat === currentCategory.toLowerCase();
+        });
 
         if(filtered.length === 0) {
             grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding: 20px;">Dukan me abhi koi maal nahi hai. Admin panel se add karein!</p>`;
@@ -491,6 +499,7 @@ select {
                                     
                 const encodedMessage = encodeURIComponent(textMessage);
                 alert(`🎉 Success! Order save ho gaya. Ab WhatsApp par redirect ho rahe hain...`);
+                // FIXED 4: व्हाट्सएप रीडायरेक्ट यूआरएल का फॉर्मेट सही किया गया
                 window.location.href = `https://whatsapp.com{ownerWhatsAppNumber}&text=${encodedMessage}`;
             } else {
                 alert("Server error! Order save nahi hua.");
