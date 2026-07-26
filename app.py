@@ -62,35 +62,7 @@ def admin_login():
     else:
         return jsonify({"error": "Access Denied: Invalid Username or Password."}), 401
 
-@app.route("/get-products", methods=["GET"])
-def get_products():
-    try:
-        conn = sqlite3.connect(DB_FILE)
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, category, brand, name, price, img, ram, processor, battery FROM products")
-        rows = cursor.fetchall()
-        conn.close()
-        products_list = []
-        for row in rows:
-            products_list.append({
-                "id": str(row[0]),
-                "category": str(row[1]),
-                "brand": str(row[2]),
-                "name": str(row[3]),
-                "price": f"₹{row[4]:,}",
-                "img": str(row[5]),
-                "specs": {
-                    "RAM": str(row[6]),
-                    "Storage": "Included",
-                    "Processor": str(row[7]),
-                    "Battery": str(row[8]),
-                },
-            })
-            
-            return jsonify(products_list), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-        
+
 
 @app.route("/add-product", methods=["POST"])
 def add_product():
@@ -159,12 +131,12 @@ def init_db():
     db.close()
     return "Database Initializee"
 
-#@app.route('/api/products',methods=['GET'])
-#def get_products():
-   # conn = get_db_connection()
-    #products = conn.execute('SELECT * FROM products').fetchall()
-    #conn.close()
-    #return jsonify([dict(row) for row in products])
+@app.route('/api/products',methods=['GET'])
+def get_products():
+    conn = get_db_connection()
+    products = conn.execute('SELECT * FROM products').fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in products])
 
 
 if __name__ == "__main__":
