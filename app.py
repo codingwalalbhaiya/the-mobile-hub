@@ -7,9 +7,6 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "products.db")
-
 DB_FILE = "shop.db"
 
 
