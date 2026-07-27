@@ -149,7 +149,7 @@ def change_password():
 
 
 # BAAKI SARE ROUTES APKE PHLE SE FIXED HAIN
-@app.route("/api/products", methods=["GET"])
+@app.route("/get-products", methods=["GET"])
 def get_products():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -179,7 +179,7 @@ def get_products():
     return jsonify(products_list)
 
 
-@app.route("/api/product", methods=["POST"])
+@app.route("/add-product", methods=["POST"])
 def add_product():
     data = request.json or {}
     try:
@@ -205,7 +205,7 @@ def add_product():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/order", methods=["POST"])
+@app.route("/add-order", methods=["POST"])
 def add_order():
     data = request.json or {}
     try:
@@ -227,7 +227,7 @@ def add_order():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/sales", methods=["GET"])
+@app.route("/get-sales", methods=["GET"])
 def get_sales():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
