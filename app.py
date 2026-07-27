@@ -16,6 +16,7 @@ def hash_password(password):
 
 
 # INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
+@app.route("/init-db", methods=["GET"])
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -64,7 +65,7 @@ def init_db():
 
 
 # 1. LIVE SQL-BASED ADMIN LOGIN CHECK
-@app.route("api/admin-login", methods=["POST"])
+@app.route("/admin-login", methods=["POST"])
 def admin_login():
     data = request.json or {}
     username_input = data.get("user", "").strip()
@@ -93,7 +94,7 @@ def admin_login():
 
 
 # 2. DYNAMIC PASSWORD UPDATE ROUTE (SQL UPDATE COMMAND)
-@app.route("/api/change-password", methods=["POST"])
+@app.route("/change-password", methods=["POST"])
 def change_password():
     data = request.json or {}
     token = data.get("token")
@@ -184,7 +185,7 @@ def add_product():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/order", methods=["POST"])
+@app.route("/order", methods=["POST"])
 def add_order():
     data = request.json or {}
     try:
@@ -206,7 +207,7 @@ def add_order():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/sales", methods=["GET"])
+@app.route("/sales", methods=["GET"])
 def get_sales():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
