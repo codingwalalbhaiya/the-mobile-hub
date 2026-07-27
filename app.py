@@ -18,11 +18,12 @@ def hash_password(password):
 # INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
 @app.route("/init-db", methods=["GET"])
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
 
     # 1. New Table: Admin Authentication Details Table in SQL
-    cursor.execute("""
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS admin_auth (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
@@ -31,7 +32,7 @@ def init_db():
     """)
 
     # 2. Products Table
-    cursor.execute("""
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category TEXT NOT NULL, brand TEXT NOT NULL, name TEXT NOT NULL,
@@ -41,7 +42,7 @@ def init_db():
     """)
 
     # 3. Orders Table
-    cursor.execute("""
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_name TEXT NOT NULL, price TEXT NOT NULL,
@@ -49,6 +50,10 @@ def init_db():
             order_date TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
+        conn.cummit()
+        return jsonify("success":true,"messae","order save successull")
+    expect Expaction as e
+        return jsonify("success":true,"message","order not save")
 
     # AUTOMATIC DEFAULT CREDENTIALS: Agar table khali hai toh default login daal do
     cursor.execute("SELECT COUNT(*) FROM admin_auth")
