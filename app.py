@@ -7,6 +7,9 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "products.db")
+
 DB_FILE = "shop.db"
 
 
@@ -128,7 +131,7 @@ def change_password():
 
 
 # BAAKI SARE ROUTES APKE PHLE SE FIXED HAIN
-@app.route("/get-products", methods=["GET"])
+@app.route("/api/products", methods=["GET"])
 def get_products():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
