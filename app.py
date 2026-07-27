@@ -16,7 +16,6 @@ def hash_password(password):
 
 
 # INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
-# INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
 @app.route("/init-db", methods=["GET"])
 def init_db():
     try:
