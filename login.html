@@ -90,42 +90,47 @@
         <a href="index.html" class="back-link">← Back to Shop</a>
     </div>
 
-   <script>
-    // FIXED: Full live hosted domain configure kiya
-    const API_URL = "https://the-mobile-hub.onrender.com";
+    <script>
+        // Python server local configuration link
+       // const API_URL = "http://127.0.0.1:5000";
 
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+       const API_URL = "https://the-mobile-hub.onrender.com";
 
-        const loginData = {
-            user: document.getElementById('username').value,
-            pass: document.getElementById('password').value
-        };
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        try {
-            const response = await fetch(`${API_URL}/admin-login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            });
+            const loginData = {
+                user: document.getElementById('username').value,
+                pass: document.getElementById('password').value
+            };
 
-            const result = await response.json();
+            try {
+                // Send values directly to Python API route
+                const response = await fetch(`${API_URL}/admin-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginData)
+                });
 
-            if (response.ok) {
-                sessionStorage.setItem("admin_token", result.token);
-                alert("🔓 Access Granted! Dashboard open ho raha hai...");
-                window.location.href = "./admin.html"; 
-            } else {
-                alert("❌ Login Error: " + result.error);
+                const result = await response.json();
+
+                if (response.ok) {
+                    // 1. Browser memory me security token lock apply karna
+                    sessionStorage.setItem("admin_token", result.token);
+                    
+                    alert("🔓 Access Granted! Dashboard open ho raha hai...");
+                    
+                    // 2. Redirect to dashboard file panel path
+                    window.location.href = "./admin.html"; 
+                } else {
+                    alert("❌ Login Error: " + result.error);
+                    window.location.href = "./index.html"; 
+                }
+            } catch (error) {
+                console.error("Login crashed connection error:", error);
+                alert("Python Server chalu nahi hai! Pehle terminal check karein.");
             }
-        } catch (error) {
-            console.error("Login crashed:", error);
-            alert("Live backend server se connection nahi ho paa raha hai. Kuch der baad koshish karein.");
-        }
-    });
-</script>
-
-
-
+        });
+    </script>
 </body>
 </html>
