@@ -341,20 +341,17 @@ select {
 </footer>
 
     
-    
- <script>
+    <script>
     // GLOBAL VARIABLES
     let productDatabase = [];
     let currentCategory = 'phone';
-    
-    // FIXED 1: यहाँ सिर्फ "onrender.com" नहीं, बल्कि आपके अपने ऐप का पूरा नाम आएगा
-    const API_URL = "https://the-mobile-hub.onrender.com"; 
+    // const API_URL = "http://127.0.0.1:5000";
+    const API_URL = "https://the-mobile-hub.onrender.com";
 
-    // 1. Render Server se Data Load Karne Ka Function
+    // 1. Python Server se Data Load Karne Ka Function
     async function loadLiveProducts() {
         try {
-            // FIXED 2: पिछले Python कोड के अनुसार यहाँ एंडपॉइंट /api/products होना चाहिए, /get-products नहीं
-            const response = await fetch(`${API_URL}/api/products`); 
+            const response = await fetch(`${API_URL}/get-products`); 
             
             if (!response.ok) {
                 throw new Error(`Server returned status: ${response.status}`);
@@ -365,7 +362,7 @@ select {
             setupCompareDropdowns(); 
         } catch (error) {
             console.error("Database connection failed:", error);
-            // बार-बार आने वाले अलर्ट को रोकने के लिए इसे केवल कंसोल में एरर दिखाने दें
+            alert("server error.");
         }
     }
 
@@ -375,14 +372,7 @@ select {
         if (!grid) return;
         grid.innerHTML = ''; 
 
-        // FIXED 3: डेटाबेस में स्टोर की गई कैटेगरी को 'phone', 'laptop', 'tablet' के लोअरकेस से मैच करने के लिए safe check
-        const filtered = productDatabase.filter(p => {
-            if (!p.category) return false;
-            let cat = p.category.toLowerCase();
-            // अगर डेटाबेस में "smartphones" लिखा है तो उसे "phone" की कैटेगरी में दिखाएं
-            if (currentCategory === 'phone' && (cat.includes('phone') || cat.includes('smartphone'))) return true;
-            return cat === currentCategory.toLowerCase();
-        });
+        const filtered = productDatabase.filter(p => p.category === currentCategory);
 
         if(filtered.length === 0) {
             grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding: 20px;">Dukan me abhi koi maal nahi hai. Admin panel se add karein!</p>`;
@@ -414,7 +404,7 @@ select {
         });
     }
 
-    // 3. Category Buttons Switch Karne Ka Function
+    // 3. Category Buttons (Tabs) Switch Karne Ka Function
     function filterCategory(cat, event) {
         currentCategory = cat;
         const buttons = document.querySelectorAll('.tab-btn');
@@ -423,7 +413,7 @@ select {
         renderProducts();
     }
 
-    // 4. COMPARE TOOL Dropdowns
+    // 4. FIXED COMPARE TOOL: Ab dropdowns me products automatic aayenge
     function setupCompareDropdowns() {
         const d1 = document.getElementById('device1');
         const d2 = document.getElementById('device2');
@@ -439,6 +429,7 @@ select {
         });
     }
 
+    // Dynamic Compare Handler for trigger button
     function compareDevices() {
         const id1 = document.getElementById('device1').value;
         const id2 = document.getElementById('device2').value;
@@ -466,7 +457,7 @@ select {
             </div>`;
     }
 
-    // 5. WhatsApp Order Redirect (Standard API Link Format)
+    // 5. Order Save Aur Clean WhatsApp Redirect Function
     async function makeSale(productId) {
         const product = productDatabase.find(p => p.id == productId);
         if(!product) return alert("Store item data loading error!");
@@ -490,7 +481,9 @@ select {
             });
 
             if(response.ok) {
+                // Sahi WhatsApp number configuration config template
                 const ownerWhatsAppNumber = "916397693239"; 
+                
                 const textMessage = `🚨 *NEW ORDER RECEIVED* 🚨\n\n` +
                                     `📱 *Product:* ${product.name}\n` +
                                     `💰 *Price:* ${product.price}\n` +
@@ -499,7 +492,8 @@ select {
                                     
                 const encodedMessage = encodeURIComponent(textMessage);
                 alert(`🎉 Success! Order save ho gaya. Ab WhatsApp par redirect ho rahe hain...`);
-                // FIXED 4: व्हाट्सएप रीडायरेक्ट यूआरएल का फॉर्मेट सही किया गया
+
+                // FIXED FORMAT STRING DIRECT URL LINK
                 window.location.href = `https://whatsapp.com{ownerWhatsAppNumber}&text=${encodedMessage}`;
             } else {
                 alert("Server error! Order save nahi hua.");
@@ -510,18 +504,14 @@ select {
         }
     }
 
+    // Initialize systems on load listeners
     document.addEventListener("DOMContentLoaded", () => {
-        loadLiveProducts(); 
-        setInterval(loadLiveProducts, 8000); // 8 Seconds background refresh polling loop
-        
+        loadLiveProducts();
         document.getElementById('btn-phone')?.addEventListener('click', (e) => filterCategory('phone', e));
         document.getElementById('btn-laptop')?.addEventListener('click', (e) => filterCategory('laptop', e));
         document.getElementById('btn-tablet')?.addEventListener('click', (e) => filterCategory('tablet', e));
         document.getElementById('btn-compare')?.addEventListener('click', compareDevices);
     });
 </script>
-
-
-
 </body>
 </html>
