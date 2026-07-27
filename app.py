@@ -16,44 +16,60 @@ def hash_password(password):
 
 
 # INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
+# INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
 @app.route("/init-db", methods=["GET"])
 def init_db():
     try:
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
 
-    # 1. New Table: Admin Authentication Details Table in SQL
+        # 1. Admin Authentication Table
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS admin_auth (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL
-        )
-    """)
+            CREATE TABLE IF NOT EXISTS admin_auth (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL
+            )
+        """)
 
-    # 2. Products Table
+        # 2. Products Table
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            category TEXT NOT NULL, brand TEXT NOT NULL, name TEXT NOT NULL,
-            price INTEGER NOT NULL, img TEXT NOT NULL, ram TEXT NOT NULL,
-            processor TEXT NOT NULL, battery TEXT NOT NULL
-        )
-    """)
+            CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category TEXT NOT NULL, brand TEXT NOT NULL, name TEXT NOT NULL,
+                price INTEGER NOT NULL, img TEXT NOT NULL, ram TEXT NOT NULL,
+                processor TEXT NOT NULL, battery TEXT NOT NULL
+            )
+        """)
 
-    # 3. Orders Table
+        # 3. Orders Table
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            product_name TEXT NOT NULL, price TEXT NOT NULL,
-            customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL,
-            order_date TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-        conn.cummit()
-        return jsonify("success":true,"messae","order save successull")
-    expect Expaction as e
-        return jsonify("success":true,"message","order not save")
+            CREATE TABLE IF NOT EXISTS orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_name TEXT NOT NULL, price TEXT NOT NULL,
+                customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL,
+                order_date TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+   
+        conn.commit()
+        conn.close() 
+        
+        
+        return jsonify({
+            "success": True, 
+            "message": "Database tables initialized successfully!"
+        }), 200
+
+  
+    except Exception as e:
+        if 'conn' in locals():
+            conn.close()
+        return jsonify({
+            "success": False, 
+            "message": "Database initialization failed", 
+            "details": str(e)
+        }), 500
 
     # AUTOMATIC DEFAULT CREDENTIALS: Agar table khali hai toh default login daal do
     cursor.execute("SELECT COUNT(*) FROM admin_auth")
