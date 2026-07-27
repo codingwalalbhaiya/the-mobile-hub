@@ -64,7 +64,7 @@ def init_db():
 
 
 # 1. LIVE SQL-BASED ADMIN LOGIN CHECK
-@app.route("/admin-login", methods=["POST"])
+@app.route("api/admin-login", methods=["POST"])
 def admin_login():
     data = request.json or {}
     username_input = data.get("user", "").strip()
@@ -93,7 +93,7 @@ def admin_login():
 
 
 # 2. DYNAMIC PASSWORD UPDATE ROUTE (SQL UPDATE COMMAND)
-@app.route("/change-password", methods=["POST"])
+@app.route("/api/change-password", methods=["POST"])
 def change_password():
     data = request.json or {}
     token = data.get("token")
@@ -158,7 +158,7 @@ def get_products():
     return jsonify(products_list)
 
 
-@app.route("/add-product", methods=["POST"])
+@app.route("/api/product", methods=["POST"])
 def add_product():
     data = request.json or {}
     try:
@@ -184,7 +184,7 @@ def add_product():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/add-order", methods=["POST"])
+@app.route("/api/order", methods=["POST"])
 def add_order():
     data = request.json or {}
     try:
@@ -206,7 +206,7 @@ def add_order():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/get-sales", methods=["GET"])
+@app.route("/api/sales", methods=["GET"])
 def get_sales():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
