@@ -14,15 +14,25 @@ DB_FILE = "shop.db"
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# 0. मुख्य रूट (यह आपकी मुख्य Render Link पर आ रहे 'Not Found' एरर को ठीक कर देगा)
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "status": "online",
+        "message": "The Mobile Hub API सही तरीके से चालू है!"
+    }), 200
+
+
 
 # INITIALIZING SECURE PERSISTENT SCHEMAS WITH AUTH TABLE
 @app.route("/init-db", methods=["GET"])
 def init_db():
     try:
+        # 1. डेटाबेस कनेक्शन (8 Spaces)
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
 
-        # 1. Admin Authentication Table
+        # Admin Authentication Table (8 Spaces)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS admin_auth (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +41,7 @@ def init_db():
             )
         """)
 
-        # 2. Products Table
+        # Products Table (8 Spaces)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +51,7 @@ def init_db():
             )
         """)
 
-        # 3. Orders Table
+        # Orders Table (8 Spaces)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,18 +60,29 @@ def init_db():
                 order_date TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
-   
+        
+        # 2. ऑटोमैटिक क्रेडेंशियल्स चेक (अब यह पूरी तरह try ब्लॉक के अंदर सुरक्षित है - 8 Spaces)
+        cursor.execute("SELECT COUNT(*) FROM admin_auth")
+        if cursor.fetchone() == 0:
+            # यह हिस्सा 'if' के अंदर है (12 Spaces)
+            default_hash = hash_password("123456")
+            cursor.execute(
+                "INSERT INTO admin_auth (username, password_hash) VALUES (?, ?)",
+                ("admin", default_hash),
+            )
+
+        # 3. डेटाबेस सुरक्षित बंद करें (8 Spaces)
         conn.commit()
         conn.close() 
         
-        
+        # 4. सफलता का रिस्पॉन्स (8 Spaces - try के अंदर होना ज़रूरी है)
         return jsonify({
             "success": True, 
-            "message": "Database tables initialized successfully!"
+            "message": "Database tables and credentials initialized successfully!"
         }), 200
 
-  
     except Exception as e:
+        # 5. एरर हैंडलिंग ब्लॉक (4 Spaces - सीधे try के नीचे)
         if 'conn' in locals():
             conn.close()
         return jsonify({
@@ -70,18 +91,9 @@ def init_db():
             "details": str(e)
         }), 500
 
-    # AUTOMATIC DEFAULT CREDENTIALS: Agar table khali hai toh default login daal do
-    cursor.execute("SELECT COUNT(*) FROM admin_auth")
-    if cursor.fetchone()[0] == 0:
-        # Default Username: admin | Default Password: hub_owner_password
-        default_hash = hash_password("123456")
-        cursor.execute(
-            "INSERT INTO admin_auth (username, password_hash) VALUES (?, ?)",
-            ("admin", default_hash),
-        )
 
-    conn.commit()
-    conn.close()
+
+    
 
 
 # 1. LIVE SQL-BASED ADMIN LOGIN CHECK
@@ -141,7 +153,7 @@ def change_password():
         conn.commit()
         conn.close()
         return (
-            jsonify({"!"}),
+            jsonify({"message": "Password updated successfully."}),
             200,
         )
     except Exception as e:
