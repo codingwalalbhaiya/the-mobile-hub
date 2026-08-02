@@ -26,21 +26,7 @@
         .total-box { background: #10b981; color: white; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 18px; font-weight: bold; text-align: center;}
     </style>
 
-    <!-- SECURE GATEWAY CHECK 
-    <script>
-        (function() {
-            // Agar secure login token nahi milti toh turant block karke login page par phek do
-            if (sessionStorage.getItem("admin_token") !== "bearer_session_auth_token_999777") {
-                sessionStorage.clear();
-                alert("🚨 Security Block: Pehle valid portal se login kijiye.");
-                window.location.replace("./login.html");
-            } else {
-                document.addEventListener("DOMContentLoaded", () => {
-                    document.body.style.display = "block";
-                });
-            }
-        })();
-    </script>-->
+   
 </head>
 <body>
 
@@ -93,91 +79,105 @@
             <div class="total-box" id="totalEarnings">Total Sale: ₹0</div>
         </div>
     </div>
-<script>
-    // FIXED: Cleaned up URL endpoint string
-    const API_URL = https://the-mobile-hub.onrender.com;
 
-    async function loadSalesFromPython() {
-        try {
-            const response = await fetch(`${API_URL}/get-sales`);
-            if (!response.ok) {
-                throw new Error(`Server status: ${response.status}`);
-            }
-            const sales = await response.json();
-            const tableBody = document.getElementById('salesTableBody');
-            if(!tableBody) return;
-            
-            let total = 0;
-            tableBody.innerHTML = "";
+    <script>
 
-            sales.forEach(item => {
-                let numPrice = Number(item.price.replace(/[^0-9]/g, ''));
-                total += numPrice;
-
-                const row = document.createElement('tr');
-                const tdDate = document.createElement('td'); tdDate.textContent = item.date;
-                const tdItem = document.createElement('td'); tdItem.innerHTML = `<b></b>`; tdItem.querySelector('b').textContent = item.productName;
-                const tdCust = document.createElement('td'); tdCust.textContent = item.customerName;
-                const tdPhon = document.createElement('td'); tdPhon.textContent = item.customerPhone;
-                const tdPric = document.createElement('td'); tdPric.style.color = "#10b981"; tdPric.style.fontWeight = "bold"; tdPric.textContent = item.price;
-                
-                row.appendChild(tdDate); row.appendChild(tdItem); row.appendChild(tdCust); row.appendChild(tdPhon); row.appendChild(tdPric);
-                tableBody.appendChild(row);
-            });
-            
-            const totalEarningsElement = document.getElementById('totalEarnings');
-            if(totalEarningsElement) {
-                totalEarningsElement.innerText = "Total Store Sale: ₹" + total.toLocaleString('en-IN');
-            }
-        } catch(err) {
-            console.error("Sales data rendering failure:", err);
-        }
-    }
-
-    document.getElementById('addProductForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const newProduct = {
-            category: document.getElementById('pCategory').value,
-            brand: document.getElementById('pBrand').value,
-            name: document.getElementById('pName').value,
-            price: Number(document.getElementById('pPrice').value),
-            img: document.getElementById('pImg').value,
-            ram: document.getElementById('pRam').value,
-            processor: document.getElementById('pProcessor').value,
-            battery: document.getElementById('pBattery').value
-        };
-
-        try {
-            const response = await fetch(`${API_URL}/add-product`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newProduct)
-            });
-
-            if(response.ok) {
-                alert("🎉 Product marketplace par successfully live ho gaya!");
-                this.reset();
-                loadSalesFromPython();
+         <!-- SECURE GATEWAY CHECK -->
+    
+        (function() {
+            // Agar secure login token nahi milti toh turant block karke login page par phek do
+            if (sessionStorage.getItem("admin_token") !== "bearer_session_auth_token_999777") {
+                sessionStorage.clear();
+                alert("🚨 Security Block: Pehle valid portal se login kijiye.");
+                window.location.replace("./login.html");
             } else {
-                alert("❌ Product add nahi hua! Server error.");
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.style.display = "block";
+                });
             }
-        } catch (error) {
-            console.error("Product insert crash:", error);
-            alert("Server pipeline connection failure.");
+        })();
+    
+
+
+
+
+
+        //const API_URL = "http://127.0.0.1:5000";
+        const API_URL = "https://the-mobile-hub.onrender.com";
+
+
+        async function loadSalesFromPython() {
+            try {
+                const response = await fetch(`${API_URL}/get-sales`);
+                const sales = await response.json();
+                const tableBody = document.getElementById('salesTableBody');
+                if(!tableBody) return;
+                
+                let total = 0;
+                tableBody.innerHTML = "";
+
+                sales.forEach(item => {
+                    let numPrice = Number(item.price.replace(/[^0-9]/g, ''));
+                    total += numPrice;
+
+                    // SECURE DOM NODE GENERATION (Hacker scripts ko inject hone se rokta hai)
+                    const row = document.createElement('tr');
+                    
+                    const tdDate = document.createElement('td'); tdDate.textContent = item.date;
+                    const tdItem = document.createElement('td'); tdItem.innerHTML = `<b></b>`; tdItem.querySelector('b').textContent = item.productName;
+                    const tdCust = document.createElement('td'); tdCust.textContent = item.customerName;
+                    const tdPhon = document.createElement('td'); tdPhon.textContent = item.customerPhone;
+                    const tdPric = document.createElement('td'); tdPric.style.color = "#10b981"; tdPric.style.fontWeight = "bold"; tdPric.textContent = item.price;
+                    
+                    row.appendChild(tdDate); row.appendChild(tdItem); row.appendChild(tdCust); row.appendChild(tdPhon); row.appendChild(tdPric);
+                    tableBody.appendChild(row);
+                });
+                document.getElementById('totalEarnings').innerText = "Total Store Sale: ₹" + total.toLocaleString('en-IN');
+            } catch(err) {
+                console.error("Sales data rendering failure:", err);
+            }
         }
-    });
 
-    document.getElementById('logoutBtn')?.addEventListener('click', function() {
-        if(confirm("Are you sure you want to logout?")) {
-            sessionStorage.clear();
-            window.location.replace("./login.html");
-        }
-    });
+        document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    loadSalesFromPython();
-    setInterval(loadSalesFromPython, 8000);
-</script>
+            const newProduct = {
+                category: document.getElementById('pCategory').value,
+                brand: document.getElementById('pBrand').value,
+                name: document.getElementById('pName').value,
+                price: Number(document.getElementById('pPrice').value),
+                img: document.getElementById('pImg').value,
+                ram: document.getElementById('pRam').value,
+                processor: document.getElementById('pProcessor').value,
+                battery: document.getElementById('pBattery').value
+            };
 
+            try {
+                const response = await fetch(`${API_URL}/add-product`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newProduct)
+                });
+
+                if(response.ok) {
+                    alert("🎉 Product marketplace par successfully live ho gaya!");
+                    this.reset();
+                    loadSalesFromPython();
+                }
+            } catch (error) {
+                alert("Server pipeline connection failure.");
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if(confirm("Are you sure you want to logout?")) {
+                sessionStorage.clear();
+                window.location.replace("./login.html");
+            }
+        });
+
+        loadSalesFromPython();
+        setInterval(loadSalesFromPython, 5000); 
+    </script>
 </body>
 </html>
