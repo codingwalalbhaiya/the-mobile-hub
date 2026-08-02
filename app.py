@@ -63,7 +63,7 @@ def init_db():
         
         # 2. ऑटोमैटिक क्रेडेंशियल्स चेक (अब यह पूरी तरह try ब्लॉक के अंदर सुरक्षित है - 8 Spaces)
         cursor.execute("SELECT COUNT(*) FROM admin_auth")
-        if cursor.fetchone() == 0:
+        if cursor.fetchone()[0] == 0:
             # यह हिस्सा 'if' के अंदर है (12 Spaces)
             default_hash = hash_password("123456")
             cursor.execute(
