@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-DB_FILE = "shop.db"
+DB_FILE = "/tmp/shop.db"
 
 
 # Cryptographic SHA-256 password hashing helper
